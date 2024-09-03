@@ -16,6 +16,7 @@ const { editarDadosCliente } = require('../controllers/controllersClients/editar
 const { cadastrarPedido } = require('../controllers/controllersOrders/cadastrarPedido');
 const { listarPedidos } = require('../controllers/controllersOrders/listarPedidos');
 const multer = require('../middlewares/multer');
+const { listarProdutos } = require('../controllers/controllersProduct/listarProdutos');
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.post('/produto', multer.single('produto_imagem'), cadastrarProduto)
 
 router.put('/produto/:id', editarProduto)
 
+router.get('/produto', listarProdutos)
 router.get('/produto/:id', detalharProduto)
 router.post('/cliente', cadastrarCliente)
 router.get('/cliente', listarClientes)
