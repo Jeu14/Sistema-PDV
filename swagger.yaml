@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  title: API Express com Swagger
+  title: SISTEMA PDV (BACK-END) - API REST
   version: "1.0.0"
-  description: Documentação da API utilizando um arquivo YAML separado
+  description: Acompanhe abaixo a documentação da API do sistema PDV, que inclui endpoints para gerenciar usuários, produtos, categorias, clientes e pedidos. A API é desenvolvida em Node.js com Express e utiliza o PostgreSQL como banco de dados. Sinta-se à vontade para testar os endpoints.
 servers:
   - url: http://localhost:3000
 components:
@@ -617,7 +617,7 @@ paths:
           description: Erro interno do servidor
   /pedido:
     post:
-      summary: Cadastra um novo pedido
+      summary: Cadastra um novo pedido e envia um e-mail confirmando (Caso não encontre na aba principal, verifique a aba de spam)
       tags:
         - Pedidos
       security:
