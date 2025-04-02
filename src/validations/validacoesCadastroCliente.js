@@ -10,14 +10,16 @@ const schemaCadastroCliente = Joi.object({
     'string.empty': 'O campo email não pode estar vazio',
     'any.required': 'O campo email é obrigatório',
   }),
-  cpf: Joi.number().integer().positive().required().messages({
-    'number.integer': 'O cpf deve ser um número inteiro',
-    'number.positive': 'O cpf deve ser um número positivo',
+  cpf: Joi.string().regex(/^\d+$/).required().messages({
+    'string.base': 'O cpf deve ser uma string',
+    'string.empty': 'O campo cpf não pode estar vazio',
+    'string.pattern.base': 'O cpf deve conter apenas números',
     'any.required': 'O campo cpf é obrigatório',
   }),
-  cep: Joi.number().integer().positive().optional().messages({
-    'number.integer': 'O cep deve ser um número inteiro',
-    'number.positive': 'O cep deve ser um número positivo',
+  cep: Joi.string().regex(/^\d+$/).optional().messages({
+    'string.base': 'O cep deve ser uma string',
+    'string.empty': 'O campo cep não pode estar vazio',
+    'string.pattern.base': 'O cep deve conter apenas números',
     'any.required': 'O campo cep é obrigatório',
   }),
   rua: Joi.string().optional().messages({

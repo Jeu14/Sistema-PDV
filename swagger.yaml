@@ -1,0 +1,723 @@
+openapi: 3.0.0
+info:
+  title: API Express com Swagger
+  version: "1.0.0"
+  description: Documentação da API utilizando um arquivo YAML separado
+servers:
+  - url: http://localhost:3000
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        email:
+          type: string
+          format: email
+    Produto:
+      type: object
+      properties:
+        id:
+          type: integer
+        descricao:
+          type: string
+        quantidade_estoque:
+          type: integer
+        valor:
+          type: number
+          format: float
+        categoria_id:
+          type: integer
+        produto_imagem:
+          type: string
+          description: URL da imagem do produto
+    Categoria:
+      type: object
+      properties:
+        id:
+          type: integer
+        descricao:
+          type: string
+    Cliente:
+      type: object
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        email:
+          type: string
+          format: email
+        cpf:
+          type: string
+        cep:
+          type: string
+        rua:
+          type: string
+        numero:
+          type: string
+        bairro:
+          type: string
+        cidade:
+          type: string
+        estado:
+          type: string
+paths:
+  /categoria:
+    get:
+      summary: Lista as categorias
+      tags:
+        - Categoria
+      responses:
+        "202":
+          description: Retorna a lista de categorias com os campos "id" e "descricao"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Categoria"
+        "500":
+          description: Erro no servidor
+  /usuario:
+    post:
+      summary: Cadastra um novo usuário
+      tags:
+        - Usuários
+      requestBody:
+        description: Dados para cadastro do usuário
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nome
+                - email
+                - senha
+              properties:
+                nome:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                senha:
+                  type: string
+              example:
+                nome: "João da Silva"
+                email: "joao@exemplo.com"
+                senha: "senha123"
+      responses:
+        "201":
+          description: Usuário cadastrado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensagem:
+                    type: string
+                  usuario:
+                    $ref: "#/components/schemas/Usuario"
+        "400":
+          description: Erro na validação dos dados ou e-mail já cadastrado
+    get:
+      summary: Retorna os dados do usuário autenticado
+      tags:
+        - Usuários
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Retorna os dados do usuário
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        "404":
+          description: Usuário não encontrado
+        "500":
+          description: Erro interno do servidor
+    put:
+      summary: Edita os dados do usuário autenticado
+      tags:
+        - Usuários
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Dados para edição do usuário
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nome
+                - email
+                - senha
+              properties:
+                nome:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                senha:
+                  type: string
+              example:
+                nome: "João da Silva Editado"
+                email: "joaoeditado@exemplo.com"
+                senha: "novasenha123"
+      responses:
+        "200":
+          description: Usuário atualizado com sucesso
+        "400":
+          description: Dados inválidos ou e-mail já existente
+        "500":
+          description: Erro interno do servidor
+  /login:
+    post:
+      summary: Realiza login do usuário
+      tags:
+        - Usuários
+      requestBody:
+        description: Dados para login do usuário
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - senha
+              properties:
+                email:
+                  type: string
+                  format: email
+                senha:
+                  type: string
+              example:
+                email: "joao@exemplo.com"
+                senha: "senha123"
+      responses:
+        "200":
+          description: Login realizado com sucesso. Retorna token e dados do usuário.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  usuario:
+                    $ref: "#/components/schemas/Usuario"
+                  token:
+                    type: string
+        "400":
+          description: Email ou senha inválida
+        "500":
+          description: Erro interno do servidor
+  /produto:
+    post:
+      summary: Cadastra um novo produto
+      tags:
+        - Produtos
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Dados para cadastro do produto. Utilize o tipo multipart/form-data para enviar os dados e o arquivo de imagem.
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - descricao
+                - quantidade_estoque
+                - valor
+                - categoria_id
+                - produto_imagem
+              properties:
+                descricao:
+                  type: string
+                quantidade_estoque:
+                  type: integer
+                valor:
+                  type: number
+                  format: float
+                categoria_id:
+                  type: integer
+                produto_imagem:
+                  type: string
+                  format: binary
+            encoding:
+              produto_imagem:
+                contentType: image/*
+      responses:
+        "201":
+          description: Produto cadastrado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensagem:
+                    type: string
+                  produto:
+                    $ref: "#/components/schemas/Produto"
+        "400":
+          description: Dados inválidos, categoria inexistente ou falha no cadastro.
+        "500":
+          description: Erro interno do servidor
+    get:
+      summary: Lista os produtos
+      tags:
+        - Produtos
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: categoria_id
+          schema:
+            type: integer
+          description: Filtra produtos por categoria
+      responses:
+        "200":
+          description: Lista de produtos ou mensagem caso nenhum produto seja encontrado.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      $ref: "#/components/schemas/Produto"
+                  - type: object
+                    properties:
+                      mensagem:
+                        type: string
+        "404":
+          description: Categoria não encontrada
+        "500":
+          description: Erro interno do servidor
+  /produto/{id}:
+    get:
+      summary: Detalha um produto específico
+      tags:
+        - Produtos
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID do produto
+      responses:
+        "200":
+          description: Retorna os dados do produto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Produto"
+        "400":
+          description: Parâmetros inválidos
+        "404":
+          description: Produto não encontrado
+        "500":
+          description: Erro interno do servidor
+    put:
+      summary: Edita um produto existente
+      tags:
+        - Produtos
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID do produto a ser editado
+      requestBody:
+        description: Dados para edição do produto. Utilize multipart/form-data se for atualizar a imagem.
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                descricao:
+                  type: string
+                quantidade_estoque:
+                  type: integer
+                valor:
+                  type: number
+                  format: float
+                categoria_id:
+                  type: integer
+                produto_imagem:
+                  type: string
+                  format: binary
+            encoding:
+              produto_imagem:
+                contentType: image/*
+      responses:
+        "200":
+          description: Produto atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensagem:
+                    type: string
+                  produto:
+                    $ref: "#/components/schemas/Produto"
+        "400":
+          description: Dados inválidos ou categoria inexistente
+        "404":
+          description: Produto não encontrado
+        "500":
+          description: Erro interno do servidor
+    delete:
+      summary: Exclui um produto
+      tags:
+        - Produtos
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID do produto a ser excluído
+      responses:
+        "200":
+          description: Produto excluído com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensagem:
+                    type: string
+        "400":
+          description: O produto está vinculado a um pedido e não pode ser excluído.
+        "404":
+          description: Produto não encontrado
+        "500":
+          description: Erro no servidor
+  /cliente:
+    post:
+      summary: Cadastra um novo cliente
+      tags:
+        - Clientes
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Dados para cadastro do cliente
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nome
+                - email
+                - cpf
+                - cep
+                - rua
+                - numero
+                - bairro
+                - cidade
+                - estado
+              properties:
+                nome:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                cpf:
+                  type: string
+                cep:
+                  type: string
+                rua:
+                  type: string
+                numero:
+                  type: string
+                bairro:
+                  type: string
+                cidade:
+                  type: string
+                estado:
+                  type: string
+              example:
+                nome: "Maria Oliveira"
+                email: "maria@exemplo.com"
+                cpf: "12345678900"
+                cep: "12345678"
+                rua: "Rua das Flores"
+                numero: "100"
+                bairro: "Centro"
+                cidade: "São Paulo"
+                estado: "SP"
+      responses:
+        "201":
+          description: Cliente cadastrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cliente"
+        "400":
+          description: Erro na validação dos dados ou e-mail/cpf já cadastrado
+        "500":
+          description: Erro interno do servidor
+    get:
+      summary: Lista os clientes
+      tags:
+        - Clientes
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Retorna uma lista de clientes com os campos "id", "nome" e "email"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    nome:
+                      type: string
+                    email:
+                      type: string
+                      format: email
+        "500":
+          description: Erro interno do servidor
+  /cliente/{id}:
+    get:
+      summary: Detalha um cliente específico
+      tags:
+        - Clientes
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID do cliente
+      responses:
+        "200":
+          description: Retorna os dados do cliente (id, nome e email)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  nome:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+        "404":
+          description: Cliente não encontrado
+        "500":
+          description: Erro interno do servidor
+    put:
+      summary: Edita os dados de um cliente
+      tags:
+        - Clientes
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID do cliente a ser editado
+      requestBody:
+        description: Dados para edição do cliente
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nome
+                - email
+                - cpf
+                - cep
+                - rua
+                - numero
+                - bairro
+                - cidade
+                - estado
+              properties:
+                nome:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                cpf:
+                  type: string
+                cep:
+                  type: string
+                rua:
+                  type: string
+                numero:
+                  type: string
+                bairro:
+                  type: string
+                cidade:
+                  type: string
+                estado:
+                  type: string
+              example:
+                nome: "Maria Oliveira Atualizada"
+                email: "maria.atualizada@exemplo.com"
+                cpf: "12345678900"
+                cep: "12345678"
+                rua: "Rua das Flores"
+                numero: "200"
+                bairro: "Centro"
+                cidade: "São Paulo"
+                estado: "SP"
+      responses:
+        "200":
+          description: Cliente atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensagem:
+                    type: string
+                  cliente:
+                    $ref: "#/components/schemas/Cliente"
+        "400":
+          description: Erro na validação dos dados ou e-mail/cpf já existente
+        "404":
+          description: Cliente não encontrado
+        "500":
+          description: Erro interno do servidor
+  /pedido:
+    post:
+      summary: Cadastra um novo pedido
+      tags:
+        - Pedidos
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Dados para cadastro do pedido. Deve incluir o cliente_id, observacao e um array de pedido_produtos com produto_id e quantidade_produto.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cliente_id
+                - pedido_produtos
+              properties:
+                cliente_id:
+                  type: integer
+                observacao:
+                  type: string
+                pedido_produtos:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - produto_id
+                      - quantidade_produto
+                    properties:
+                      produto_id:
+                        type: integer
+                      quantidade_produto:
+                        type: integer
+              example:
+                cliente_id: 1
+                observacao: "Pedido de teste"
+                pedido_produtos:
+                  - produto_id: 2
+                    quantidade_produto: 3
+      responses:
+        "201":
+          description: Pedido cadastrado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensagem:
+                    type: string
+        "400":
+          description: Erro de validação ou cliente/produto não encontrado, ou estoque insuficiente.
+        "500":
+          description: Erro interno do servidor
+    get:
+      summary: Lista os pedidos cadastrados
+      tags:
+        - Pedidos
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: cliente_id
+          schema:
+            type: integer
+          description: Filtra os pedidos pelo ID do cliente
+      responses:
+        "200":
+          description: Retorna uma lista de pedidos formatados, contendo os detalhes do pedido e seus produtos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    pedido:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        valor_total:
+                          type: number
+                          format: float
+                        observacao:
+                          type: string
+                        cliente_id:
+                          type: integer
+                    pedido_produtos:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          quantidade_produto:
+                            type: integer
+                          valor_produto:
+                            type: number
+                            format: float
+                          pedido_id:
+                            type: integer
+                          produto_id:
+                            type: integer
+        "500":
+          description: Erro interno do servidor

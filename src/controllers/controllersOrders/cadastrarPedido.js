@@ -113,7 +113,7 @@ const cadastrarPedido = async (req, res) => {
     
     const conteudoEmail = await compiladorHtml(caminhoAbsoluto, contextoEmail);
          transportador.sendMail({
-      from: 'gbank970@gmail.com',
+      from: process.env.EMAIL_NAME,
       to: cliente.email,
       subject: 'Confirmação da G9Bank - Pedido Efetuado com Sucesso',
       html: conteudoEmail,

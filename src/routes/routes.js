@@ -29,7 +29,7 @@ router.put('/usuario', editarUsuario)
 router.post('/produto', multer.single('produto_imagem'), cadastrarProduto)
 
 
-router.put('/produto/:id', editarProduto)
+router.put('/produto/:id', multer.single('produto_imagem'), editarProduto)
 
 router.get('/produto', listarProdutos)
 router.get('/produto/:id', detalharProduto)
