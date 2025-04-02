@@ -4,7 +4,7 @@ info:
   version: "1.0.0"
   description: Acompanhe abaixo a documentação da API do sistema PDV, que inclui endpoints para gerenciar usuários, produtos, categorias, clientes e pedidos. A API é desenvolvida em Node.js com Express e utiliza o PostgreSQL como banco de dados. Sinta-se à vontade para testar os endpoints.
 servers:
-  - url: https://sistema-pdv-production.up.railway.app
+  - url: http://localhost:3000
 components:
   securitySchemes:
     BearerAuth:
