@@ -16,7 +16,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
  
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Servidor rodando na porta ${process.env.PORT || 3000}`);
-  console.log(`Swagger disponível em http://localhost:${process.env.PORT || 3000}/api-docs`);
 });
 
 
