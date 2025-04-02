@@ -1,6 +1,6 @@
 # SISTEMA-PDV
 
-LINK DO DEPLOY DO PROJETO: https://sistema-pdv-nu.vercel.app/
+LINK DO DEPLOY DO PROJETO: https://sistema-pdv-production.up.railway.app/api-docs
 
 # Projeto - Backend
 
